@@ -1,3 +1,27 @@
+'Function that updates all the pivot tables in the active sheet
+'using an index number which represents
+'the data source (range object which contains the data)
+Sub updatePivotTables()
+    Dim pt_rng As Range
+    Dim ind As Integer
+    Dim newrange As String
+ 
+    'show how many elements contains pivotcaches collection
+    MsgBox "This workbook already contains " & ActiveWorkbook.PivotCaches.Count & " pivot caches"
+
+    For Each PT In ActiveSheet.PivotTables
+        Set pt_rng = PT.TableRange2  'tablerange2 select including pivot table pagefields
+        ind = Cells(2, pt_rng.Column).Value
+
+        newrange = getRangeByIndex(ind) 'see FunctionsHelper
+        PT.ChangePivotCache ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=newrange)
+        PT.RefreshTable
+    Next PT
+
+    MsgBox "Pivot tables succesfully udpated"
+End Sub
+
+
 'Function that from an origin worksheet copy specified headers to the destination worksheet.
 'The headers to copy are specified in the "params" worksheet.
 Sub copyColumnsByHeaderName()
@@ -65,27 +89,87 @@ Sub copyColumnsByHeaderName()
 End Sub
 
 
-'Function that updates all the pivot tables in the active sheet
-'using an index number which represents
-'the data source (range object which contains the data)
-Sub updatePivotTables()
-    Dim pt_rng As Range
-    Dim ind As Integer
-    Dim newrange As String
- 
-    'show how many elements contains pivotcaches collection
-    MsgBox "This workbook already contains " & ActiveWorkbook.PivotCaches.Count & " pivot caches"
 
-    For Each PT In ActiveSheet.PivotTables
-        Set pt_rng = PT.TableRange2  'tablerange2 select including pivot table pagefields
-        ind = Cells(2, pt_rng.Column).Value
+'Find rows delimiters of the regions that compose the "cuotas captura" sheet.
+Sub getCuotaCapturaRanges()
 
-        newrange = getRangeByIndex(ind) 'see FunctionsHelper
-        PT.ChangePivotCache ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=newrange)
-        PT.RefreshTable
-    Next PT
+    Dim wscc As Worksheet
+    Set wscc = ActiveWorkbook.Worksheets("cc")
+    Dim wscuotacaptura As Worksheet
+    Set wscuotacaptura = ActiveWorkbook.Worksheets("Cuotas Captura")
+    
+    wscuotacaptura.Select
+    
+    Range("A1").Select
+    Dim r_inicio As Long
 
-    MsgBox "Pivot tables succesfully udpated"
+    i = 1
+    Do While True
+        
+        Selection.End(xlDown).Select
+        r_inicio = Selection.Row
+        If r_inicio > 10000 Then
+            Exit Do
+        End If
+    
+        wscc.Cells(i, 1) = Selection.Value
+        Selection.End(xlDown).Select
+        r_final = Selection.Row
+        wscc.Cells(i, 2) = r_inicio
+        wscc.Cells(i, 3) = r_final
+        i = i + 1
+    Loop
+
+    wscc.Select
+
+End Sub
+
+
+'Read the actual visibility settings of the sheets and show that status
+Sub readSheetsStatus()
+
+Dim ws_sheet  As Worksheet
+Set ws_sheet = Worksheets("libros")
+
+ws_sheet.Activate
+
+i = 5
+For Each sh In ActiveWorkbook.Worksheets
+    If sh.name <> "libros" Then
+        Cells(i, 1) = sh.name
+        If sh.Visible Then
+            Cells(i, 2) = 1
+        Else
+            Cells(i, 2) = 0
+        End If
+        i = i + 1
+    End If
+Next sh
+
+End Sub
+
+'Set the custom visibility of the sheets
+Sub setSheetsStatus()
+
+Dim ws_sheet  As Worksheet
+Set ws_sheet = Worksheets("libros")
+
+ws_sheet.Activate
+
+ultirow = ws_sheet.Cells(ws_sheet.Rows.Count, 1).End(xlUp).Row
+
+Dim name As String
+For i = 5 To ultirow
+    name = Cells(i, 1)
+    If Cells(i, 2) <> "libros" Then
+        If Cells(i, 2) = 1 Then
+            ActiveWorkbook.Worksheets(name).Visible = True
+        Else
+            ActiveWorkbook.Worksheets(name).Visible = xlSheetHidden
+        End If
+    End If
+Next i
+
 End Sub
 
 
@@ -237,45 +321,9 @@ Sub createPivotTablesFromParams()
     End With
     
 End Sub
-
-
-'Find rows delimiters of the regions that compose the "cuotas captura" sheet.
-Sub getCuotaCapturaRanges()
-
-    Dim wscc As Worksheet
-    Set wscc = ActiveWorkbook.Worksheets("cc")
-    Dim wscuotacaptura As Worksheet
-    Set wscuotacaptura = ActiveWorkbook.Worksheets("Cuotas Captura")
     
-    wscuotacaptura.Select
     
-    Range("A1").Select
-    Dim r_inicio As Long
-
-    i = 1
-    Do While True
-        
-        Selection.End(xlDown).Select
-        r_inicio = Selection.Row
-        If r_inicio > 10000 Then
-            Exit Do
-        End If
-    
-        wscc.Cells(i, 1) = Selection.Value
-        Selection.End(xlDown).Select
-        r_final = Selection.Row
-        wscc.Cells(i, 2) = r_inicio
-        wscc.Cells(i, 3) = r_final
-        i = i + 1
-    Loop
-
-    wscc.Select
-
-End Sub
-
-'Function that creates summary files with selected sheets from workbooks.
-'The sheets that are going to be included in the summary files are specified in params_resumen.xlsm
-' parameter mode has 3 valid values:  ruc, noruc, admin
+'mode:  ruc, noruc, admin
 Sub genSummaryAsIntegral()
         mode = "asvent_noruc"
         'Open "as. integral" main file
@@ -348,45 +396,31 @@ Sub genSummaryAsIntegral()
 End Sub
 
 
-'Read the actual visibility settings of the sheets and show that status
-Sub readSheetsStatus()
-    Dim ws_sheet  As Worksheet
-    Set ws_sheet = Worksheets("libros")
-    
-    ws_sheet.Activate
-    
-    i = 5
-    For Each sh In ActiveWorkbook.Worksheets
-        If sh.name <> "libros" Then
-            Cells(i, 1) = sh.name
-            If sh.Visible Then
-                Cells(i, 2) = 1
-            Else
-                Cells(i, 2) = 0
-            End If
-            i = i + 1
+Function alcanceb(area As Range, bafi As Range)
+    If bafi.Value = "BAFI" Then
+        If area.Value = "POST VENTA TP" Then
+            alcance = "ASESOR POST VENTA - SIN BAFI"
+        ElseIf area.Value = "BIENVENIDA TP" Then
+            alcance = "ASESOR DE BIENVENIDA - SIN BAFI"
+        ElseIf area.Value = "COORDINADOR TP" Then
+            alcance = "COORDINADOR DE PISO - SIN BAFI"
         End If
-    Next sh
+    Else
+        If area.Value = "POST VENTA TP" Then
+            alcance = "ASESOR POST VENTA"
+        ElseIf area.Value = "BIENVENIDA TP" Then
+            alcance = "ASESOR DE BIENVENIDA"
+        ElseIf area.Value = "COORDINADOR TP" Then
+            alcance = "COORDINADOR DE PISO"
+        End If
+    End If
+End Function
+
+
+Sub detectBlankAtStartOrEnd()
+    str = Selection.Cells(1, 1)
+    r = Right(str)
+  '  l = Left(str, 1)
+    MsgBox code(r)
 End Sub
 
-'Set the custom visibility of the sheets
-Sub setSheetsStatus()
-    Dim ws_sheet  As Worksheet
-    Set ws_sheet = Worksheets("libros")
-    
-    ws_sheet.Activate
-    
-    ultirow = ws_sheet.Cells(ws_sheet.Rows.Count, 1).End(xlUp).Row
-    
-    Dim name As String
-    For i = 5 To ultirow
-        name = Cells(i, 1)
-        If Cells(i, 2) <> "libros" Then
-            If Cells(i, 2) = 1 Then
-                ActiveWorkbook.Worksheets(name).Visible = True
-            Else
-                ActiveWorkbook.Worksheets(name).Visible = xlSheetHidden
-            End If
-        End If
-    Next i
-End Sub
