@@ -1,4 +1,4 @@
-## System Identification using Excel + macros
+# System Identification using Excel + macros
 
 For a system expressed in its Laplace representation:
 
