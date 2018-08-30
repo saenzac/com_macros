@@ -4,7 +4,8 @@ For a system expressed in its Laplace representation:
 
 <img src="https://latex.codecogs.com/svg.latex?\Large&space;\theta(s)=\frac{1}{a_3*s^3+a_2*s^2+a_1*s}V(s)" />
 
-We want to identify the parameters $a_1$, $a_2$ and $a_3$ . Bilineal transformation is used to obtain a quasi-equivalent Zeta-transform which difference equation is:
+We want to identify the parameters <img src="https://latex.codecogs.com/svg.latex?\Large&space;a_1" />, <img src="https://latex.codecogs.com/svg.latex?\Large&space;a_2" /> 
+and <img src="https://latex.codecogs.com/svg.latex?\Large&space;a_3" /> . Bilineal transformation is used to obtain a quasi-equivalent Zeta-transform which difference equation is:
 
 <img src="https://latex.codecogs.com/svg.latex?\Large&space;\theta[n]=a*V[n-3]+b*\theta[n-3]+c*\theta[n-2]+d*\theta[n-1]" />
 
