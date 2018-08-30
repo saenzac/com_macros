@@ -24,3 +24,7 @@ The process is shown:
 
 ![diagram](https://raw.githubusercontent.com/saenzac/com_macros/master/diagram.png)
 
+
+* References:
+
+Aliane, Nourdine & Fernández, Javier & Bemposta Rosende, Sergio. (2013). A spreadsheet method for continuous-time model identification. Measurement. 46. 680–687. 10.1016/j.measurement.2012.08.027.
