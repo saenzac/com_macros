@@ -9,9 +9,7 @@ and <img src="https://latex.codecogs.com/svg.latex?\Large&space;a_3" /> . Biline
 
 <img src="https://latex.codecogs.com/svg.latex?\Large&space;\theta[n]=a*V[n-3]+b*\theta[n-3]+c*\theta[n-2]+d*\theta[n-1]" />
 
-In the real system a voltage <img src="https://latex.codecogs.com/svg.latex?\Large&space;V_{exp}(t)" />
-
- is applied to obtain the angular output <img src="https://latex.codecogs.com/svg.latex?\Large&space;\theta_{exp}(t)" /> .
+In the real system a voltage <img src="https://latex.codecogs.com/svg.latex?\Large&space;V_{exp}(t)" /> is applied to obtain the angular output <img src="https://latex.codecogs.com/svg.latex?\Large&space;\theta_{exp}(t)" /> .
 
 We use the solver addin of MS. Excel to minimize the cost function:
 
@@ -19,3 +17,10 @@ We use the solver addin of MS. Excel to minimize the cost function:
 
 At the minimum <img src="https://latex.codecogs.com/svg.latex?\Large&space;J" /> the corresponding values of <img src="https://latex.codecogs.com/svg.latex?\Large&space;a^*" />, <img src="https://latex.codecogs.com/svg.latex?\Large&space;b^*" /> 
 and <img src="https://latex.codecogs.com/svg.latex?\Large&space;c^*" /> are the optimal values we were looking for.
+
+
+The process is shown:
+
+
+![diagram](https://raw.githubusercontent.com/saenzac/com_macros/master/diagram.png)
+
